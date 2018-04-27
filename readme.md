@@ -140,7 +140,9 @@ static 변수 이기 때문에 프로그램이 실행되고 끝날때까지 인�
 
 synchronized와의 차이는 synchronized는 작업 자체를 원자해버리지만, volatile은 특정 변수에 대해서만 최신 값을 제공한다
 
-* holder
+하지만 JVM이 순차적 영속성을 정확히 고려한 volatile을 구현하지 않는다
+
+* Holder
 
 ```Java
 public class Singleton {
@@ -156,3 +158,14 @@ public class Singleton {
 }
 
 ```
+
+중첩 클래스를 이용해 Holder를 사용한 기법으로 가장 best. getInstance 메소드가 호출되기 전까지 Singleton 인스턴스는 생성되지 않는다(지연된 초기화 -> 메모리 효율 좋음). 또한 synchronized를 사용하지 않아 성능 문제가 없다. 그리고 최신 JVM은 클래스를 초기화하기 위한 필드 접근은 동기화된다. 초기화되고 나면 코드를 바꿔서 앞으로의 필드 접근에는 어떤 동기화나 검사도 필요하지 않게 된다. 그러므로 초기화 된 이후에 getInstance()메소드가 호출된다고 하더라도 인스턴스는 생성되지 않는다(JVM에서 클래스를 로딩하고 초기화할 때 원자성을 보장하기 때문)
+
+
+***참고***
+
+http://asfirstalways.tistory.com/335#recentComments
+
+http://gampol.tistory.com/m/entry/Double-checked-locking%EA%B3%BC-Singleton-%ED%8C%A8%ED%84%B4
+
+volatile에 대해 좀 더 알아 볼 필요 있겠다
