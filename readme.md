@@ -140,9 +140,11 @@ static 변수 이기 때문에 프로그램이 실행되고 끝날때까지 인�
 
 synchronized와의 차이는 synchronized는 작업 자체를 원자해버리지만, volatile은 특정 변수에 대해서만 최신 값을 제공한다
 
+volatile 키워드를 사용하면 자바의 일종의 최적화인 리오더링(보통 컴파일 과정에서 일어나며, 프로그래머가 만들어낸 코드는 컴파일 될 때 좀더 빠르게 실행될 수 있도록 조작이 가해져 최적하됨)을 회피하여 읽기와 쓰기순서를 보장 멀티스레딩을 쓰더라도 uniqueInstance변수가 Singleton 인스턴스로 초기화 되는 과정이 올바르게 진행되도록 할 수 있다
+
 하지만 JVM이 순차적 영속성을 정확히 고려한 volatile을 구현하지 않는다
 
-* Holder
+* Lazy Holder
 
 ```Java
 public class Singleton {
