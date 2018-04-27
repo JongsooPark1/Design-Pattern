@@ -40,9 +40,7 @@ DBCP(DataBase Connection Pool)처럼 공통된 객체를 여러개 생성해서 
 public class Singleton {
   private static Singleton singleton;
 
-  private Singleton() {
-
-  }
+  private Singleton() {}
 
   static Singleton getInstance() {
     if (singleton == null) {
@@ -53,7 +51,7 @@ public class Singleton {
 }
 ```
 
-두 가지 이상의 스레드가 동시에 접근하게 될 경우 두 개의 인스턴스를 만들 수 있다. 이는 singleton 패턴에 어긋난다
+멀티 스레드 환경에서 두 가지 이상의 스레드가 동시에 접근하게 될 경우 두 개의 인스턴스를 만들 수 있다. 이는 singleton 패턴에 어긋난다
 
 * Lazy Initialization
 
@@ -63,9 +61,7 @@ synchronized 키워드를 이용해 서로 다른 스레드의 동시 접근을 
 public class Singleton {
   private static Singleton singleton;
 
-  private Singleton() {
-
-  }
+  private Singleton() {}
 
   public static synchronized Singleton getInstance() {
     if (singleton == null) {
@@ -76,17 +72,38 @@ public class Singleton {
 }
 ```
 
-* DCL(double checked locking)
+동기화 작업을 메소드 단위로 하기 때문에 시간이 오래 걸려(100배) 비효율 적이다
 
-인스턴스가 생성되었는지만 확인하고, 생성되지 않았을 때만 동기화한다(동기화 영역을 줄여준다). Lazy Initialization의 단점이 느리다는 것(100배)과, 항상 Lock이 걸리는 것이 었는데, 이를 해결해준다
+* Lazy Initialization 변형
 
 ```Java
 public class Singleton {
-  private static volatile Singleton singleton = new Singleton();
+  private static Singleton singleton;
 
-  private Singleton() {
+  private Singleton() {}
 
+  public static Singleton getInstance() {
+    if (singleton == null) {
+      synchronized(Singleton.class) {
+      instance = new Singleton();
+      }
+    }
+    return singleton;
   }
+}
+```
+
+메소드 단위의 동기화를 피하기 위해 이와 같은 코드를 작성하였다. 하지만 이 방법은 첫번째 방법과 마찬가지로 멀티 스레드 환경에서 두 가지 인스턴스를 만들 수 있다
+
+* DCL(double checked locking)
+
+인스턴스가 생성되었는지만 확인하고, 생성되지 않았을 때만 동기화한다(동기화 영역을 줄여준다). 이론적으로는 문제가 없지만 다중 프로세서에서 다른 CPU가 항상 lock이 걸린다는 것. 이유는 자바 플랫폼 메모리 모델 때문
+
+```Java
+public class Singleton {
+  private static volatile Singleton singleton;
+
+  private Singleton() {}
 
   public static Singleton getInstance() {
     if (singleton == null) {
@@ -101,4 +118,41 @@ public class Singleton {
 }
 ```
 
-* violate
+* 인스턴스를 필요할 때 생성하지 말고, 처음부터 만들어 버린다
+
+```Java
+public class Singleton {
+  private static volatile Singleton singleton = new Singleton();
+
+  private Singleton() {}
+
+  public static synchronized Singleton getInstance() {
+    return singleton;
+  }
+}
+```
+
+static 변수 이기 때문에 프로그램이 실행되고 끝날때까지 인스턴스가 메모리에 있게 된다.(인스턴스를 사용하지 않더라도) 멀티 스레드 환경에서 동작은 하지만 best는 아니다
+
+***volatile?***
+
+멀티 스레딩 환경에서 동기화 해주는 키워드. 좀 더 구체적으로 컴파일러가 특정 변수에 대해 옵티마이져가 캐싱을 적용하지 못하게 한다
+
+synchronized와의 차이는 synchronized는 작업 자체를 원자해버리지만, volatile은 특정 변수에 대해서만 최신 값을 제공한다
+
+* holder
+
+```Java
+public class Singleton {
+  private Singleton() {}
+
+  private static class SingletonHolder {
+    public static final Singleton singleton = new Singleton();
+  }
+
+  public static Singleton getInstance() {
+    return SingletonHolder.singleton;
+  }
+}
+
+```
