@@ -122,11 +122,12 @@ public class Singleton {
 
 ```Java
 public class Singleton {
+  // 여기서 volatile 
   private static volatile Singleton singleton = new Singleton();
 
   private Singleton() {}
 
-  public static synchronized Singleton getInstance() {
+  public static Singleton getInstance() {
     return singleton;
   }
 }
@@ -170,4 +171,30 @@ http://asfirstalways.tistory.com/335#recentComments
 
 http://gampol.tistory.com/m/entry/Double-checked-locking%EA%B3%BC-Singleton-%ED%8C%A8%ED%84%B4
 
+http://kwanseob.blogspot.kr/2012/08/java-volatile.html
+
 volatile에 대해 좀 더 알아 볼 필요 있겠다
+
+- volatile을 사용한 변수 (1.5이상): 변수 접근까지에 대해 모든 변수들의 상황이 업데이트 되고, 변수가 업데이트된다.
+- synchronziation을 사용한 연산: synch블락 전까지의 모든 연산이 업데이트 되고, synch안의 연산이 업데이트된다.
+
+
+
+마지막으로 volatile과 synchronization을 살펴보자. 아래의 코드가 이해를 도와줄 거라고 생각한다. i와 j를 보고 연산에 어떤 차이가 있을지 생각해봐라. 어느 변수가 멀티쓰레드 환경에서 문제가 될까?
+
+```java
+volatile int i;
+
+i++;
+
+int j;
+
+synchronized { j++; }
+
+volatile vs synchronized
+
+```
+
+
+
+대략 감이 잡힌다면 정말 센스 만점인 사람이다. 답은 i가 문제가 될 수 있고, j는 괜찮다는 거다. 왜냐면 i++ 이란 문장은 read i to temp; add temp 1 ; save temp to i; 라는 세개의 문장으로 나뉘어지기 때문이다. 따라서, read나 write하나만 완벽히 실행되도록 도와주는 volatile은 2번 문장이 3개로 나뉘어 질 경우에 다른 쓰레드가 접근하면 문제가 생길 수가 있다. 하지만, synchronized는 그 블럭안에 모든 연산이 방해받지 않도록 보장해주기에 j는 제대로 업데이트가 된다.
