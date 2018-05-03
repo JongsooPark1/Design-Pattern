@@ -99,6 +99,8 @@ public class Singleton {
 
 인스턴스가 생성되었는지만 확인하고, 생성되지 않았을 때만 동기화한다(동기화 영역을 줄여준다). 이론적으로는 문제가 없지만 다중 프로세서에서 다른 CPU가 항상 lock이 걸린다는 것. 이유는 자바 플랫폼 메모리 모델 때문
 
+JLS(Java Language Specification)을 참고할 때, 변수가 volatile로 선언되면 실행 순서가 일관적인 것으로 여겨지며, 재배치(reordering)이 일어나지 않는다. Peter Haggar은 두 가지 문제를 지적하고 있다. 첫번째는 순서 일관성의 문제가 아니라 최적화를 통해 코드가 옮겨지는 문제, 두번째는 많은 JVM이 volatile에 대한 순서 일관성조차 제대로 구현하고 있지 않다(JDK 1.5 이전 버전, 이후는 잘 작동한다고 함). C에선 volatile을 사용해 DCL 문제를 해소할 수 있지만, Java는 그렇지 않다
+
 ```Java
 public class Singleton {
   private static volatile Singleton singleton;
