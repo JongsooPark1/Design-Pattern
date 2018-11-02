@@ -50,6 +50,10 @@ DBCP(DataBase Connection Pool)처럼 공통된 객체를 여러개 생성해서 
 
 #### 멀티 스레딩 환경에서 singleton 사용하기
 
+getInstance() 메소드는 외부에서 호출해야 하므로 public, 나머진 전부 private
+
+singleton 변수와 getInstance() 메소드는 static
+
 </br>
 
 * 가장 기본적인 singleton
@@ -206,7 +210,7 @@ static 변수 이기 때문에 프로그램이 실행되고 끝날때까지 인�
 
 멀티 스레딩 환경에서 동기화 해주는 키워드. 좀 더 구체적으로 컴파일러가 특정 변수에 대해 옵티마이져가 캐싱을 적용하지 못하게 한다
 
-synchronized와의 차이는 synchronized는 작업 자체를 원자해버리지만, volatile은 특정 변수에 대해서만 최신 값을 제공한다
+**synchronized와의 차이는 synchronized는 작업 자체를 원자해버리지만, volatile은 특정 변수에 대해서만 최신 값을 제공한다**
 
 volatile 키워드를 사용하면 자바의 일종의 최적화인 리오더링(보통 컴파일 과정에서 일어나며, 프로그래머가 만들어낸 코드는 컴파일 될 때 좀더 빠르게 실행될 수 있도록 조작이 가해져 최적하됨)을 회피하여 읽기와 쓰기순서를 보장. 멀티스레딩을 쓰더라도 uniqueInstance변수가 Singleton 인스턴스로 초기화 되는 과정이 올바르게 진행되도록 할 수 있다
 
@@ -223,7 +227,7 @@ public class Singleton {
   private Singleton() {}
 
   private static class SingletonHolder {
-    public static final Singleton singleton = new Singleton();
+    private static final Singleton singleton = new Singleton();
   }
 
   public static Singleton getInstance() {
@@ -239,7 +243,7 @@ public class Singleton {
 
 1. final은 한번 초기화 되면 값을 변경할 수 없다.
 
-2. static은 Class가 로딩되는(즉, Access되는) 시점에 해당 객체가 JVM의 Class Area에 저장된다.
+2. **static은 Class가 로딩되는(즉, Access되는) 시점에 해당 객체가 JVM의 Class Area에 저장된다.**
 
 3. Inner class를 사용함으로서 SingletonHolder.INSTANCE 이 부분이 실행되기 전까지는 2.의 법칙에 의해서 Load 되지 않는다.
 
